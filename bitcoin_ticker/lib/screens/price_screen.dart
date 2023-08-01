@@ -22,7 +22,7 @@ class _PriceScreenState extends State<PriceScreen> {
   void initState() {
     super.initState();
     for (String crypto in cryptoList) {
-      exchangeRates.putIfAbsent(crypto, () => '');
+      exchangeRates.putIfAbsent(crypto, () => '0');
     }
     getInitialExchangeCurrency();
   }

@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 class CustomCard extends StatelessWidget {
   const CustomCard({
     super.key,
-    required this.exchangeRateBTC,
+    required this.exchangeRate,
     required this.selectedCurrency,
     required this.cryptoCurrencyType
   });
 
-  final String exchangeRateBTC;
+  final String exchangeRate;
   final String selectedCurrency;
   final String cryptoCurrencyType;
 
@@ -23,7 +23,7 @@ class CustomCard extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
         child: Text(
-          '1 $cryptoCurrencyType = $exchangeRateBTC $selectedCurrency',
+          '1 $cryptoCurrencyType = $exchangeRate $selectedCurrency',
           textAlign: TextAlign.center,
           style: const TextStyle(
             fontSize: 20.0,

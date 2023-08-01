@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/coin_data.dart';
 import 'dart:io' show Platform;
-import '../components/custom_card.dart';
+import '../components/list_custom_card.dart';
 import '../components/android_dropdown.dart';
 import '../components/ios_picker.dart';
 
@@ -16,22 +16,34 @@ class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
   CoinData coinData = CoinData();
 
-  String exchangeRateBTC = '';
+  Map<String, String> exchangeRates = {};
 
-  void updateUI(var exchangeData, currency) {
+  @override
+  void initState() {
+    super.initState();
+    for (String crypto in cryptoList) {
+      exchangeRates.putIfAbsent(crypto, () => "");
+    }
+  }
+
+  void updateUI(var exchangeData, String currency) {
     if (exchangeData == null) {
       setState(() {
         selectedCurrency = currency;
-        exchangeRateBTC = 'ERROR';
+        exchangeRates.forEach((crypto, value) {
+          crypto = 'ERROR';
+        });
       });
 
       return;
     }
-
-    double rate = exchangeData['rate'];
+    
     setState(() {
       selectedCurrency = currency;
-      exchangeRateBTC = rate.toStringAsFixed(2);
+      for (String crypto in cryptoList) {
+        String formattedExchangeRate = exchangeData[crypto]['rate'].toStringAsFixed(2);
+        exchangeRates[crypto] = formattedExchangeRate;
+      }
     });
   }
 
@@ -45,13 +57,9 @@ class _PriceScreenState extends State<PriceScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: CustomCard(
-              exchangeRateBTC: exchangeRateBTC,
-              selectedCurrency: selectedCurrency,
-              cryptoCurrencyType: 'BTC',
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: getExchangeRateCards(exchangeRates, selectedCurrency),
           ),
           Container(
             height: 150.0,

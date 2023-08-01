@@ -18,10 +18,13 @@ DropdownButton<String> androidDropdown(
     items: dropdownItems,
     onChanged: (value) async {
       selectedCurrency = value.toString();
-      var exchangeData =
-          await coinData.getCryptoExchange(selectedCurrency, 'BTC');
+      Map<String, dynamic> exchangeDataMap = {};
+      for(String crypto in cryptoList) {
+        var exchangeData = await coinData.getCryptoExchange(selectedCurrency, crypto);
+        exchangeDataMap.putIfAbsent(crypto, () => exchangeData);
+      }
 
-      updateUI(exchangeData, selectedCurrency);
+      updateUI(exchangeDataMap, selectedCurrency);
     },
   );
 }

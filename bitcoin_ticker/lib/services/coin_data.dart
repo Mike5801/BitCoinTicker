@@ -46,15 +46,17 @@ class CoinData {
 
     Uri url =
         Uri.https(_baseURL, '/v1/exchangerate/$_cryptoCurrency/$_exchangeCoin');
-    try {
-      http.Response response =
-          await http.get(url, headers: {"X-CoinAPI-Key": kApiKey});
 
-      var cryptoData = jsonDecode(response.body);
+    http.Response response =
+        await http.get(url, headers: {"X-CoinAPI-Key": kApiKey});
 
+    var cryptoData = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
       return cryptoData;
-    } catch (e) {
-      print(e);
+    } else {
+      print('Status Code: ${response.statusCode} | Error ${cryptoData["error"]}');
+      return null;
     }
   }
 }

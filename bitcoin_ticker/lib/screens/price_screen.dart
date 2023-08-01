@@ -22,39 +22,38 @@ class _PriceScreenState extends State<PriceScreen> {
   void initState() {
     super.initState();
     for (String crypto in cryptoList) {
-      exchangeRates.putIfAbsent(crypto, () => '0');
+      exchangeRates.putIfAbsent(crypto, () => '...');
     }
     getInitialExchangeCurrency();
   }
 
   void getInitialExchangeCurrency() async {
+    Map<String, dynamic> futureExchangeData = {};
     for (String crypto in cryptoList) {
-      var exchangeData = await coinData.getCryptoExchange(selectedCurrency, crypto);
-      String formattedExchangeRate =
-          exchangeData['rate'].toStringAsFixed(2);
-      setState(() {
-        exchangeRates[crypto] = formattedExchangeRate;
-      });
+      futureExchangeData[crypto] = await coinData.getCryptoExchange(selectedCurrency, crypto);
     }
-  }
 
-  void updateUI(var exchangeData, String currency) {
-    if (exchangeData == null) {
-      setState(() {
-        selectedCurrency = currency;
-        exchangeRates.forEach((crypto, value) {
-          crypto = 'ERROR';
-        });
-      });
+    futureExchangeData.removeWhere((key, value) => value == null);
 
+    if (futureExchangeData.isEmpty) {
+      updateUI(null, selectedCurrency);
       return;
     }
 
+    updateUI(futureExchangeData, selectedCurrency);
+  }
+
+  void updateUI(var exchangeData, String currency) {
     setState(() {
       selectedCurrency = currency;
       for (String crypto in cryptoList) {
+        if (exchangeData[crypto] == null) {
+          exchangeRates[crypto] = 'ERROR';
+          continue;
+        }
         String formattedExchangeRate =
             exchangeData[crypto]['rate'].toStringAsFixed(2);
+
         exchangeRates[crypto] = formattedExchangeRate;
       }
     });

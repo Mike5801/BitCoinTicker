@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../services/coin_data.dart';
 import 'dart:io' show Platform;
+import '../services/coin_data.dart';
 
 class PriceScreen extends StatefulWidget {
   const PriceScreen({super.key});
@@ -12,6 +13,17 @@ class PriceScreen extends StatefulWidget {
 
 class _PriceScreenState extends State<PriceScreen> {
   String selectedCurrency = 'USD';
+  CoinData coinData = CoinData();
+
+  double exchangeRateBTC = 0.0;
+
+  void updateUI(var exchangeData, currency) {
+    double rate = exchangeData['rate'];
+    setState(() {
+      selectedCurrency = currency;
+      exchangeRateBTC = rate;
+    });
+  }
 
   DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> dropdownItems = [];
@@ -27,10 +39,12 @@ class _PriceScreenState extends State<PriceScreen> {
     return DropdownButton<String>(
       value: selectedCurrency,
       items: dropdownItems,
-      onChanged: (value) {
-        setState(() {
-          selectedCurrency = value.toString();
-        });
+      onChanged: (value) async {
+        selectedCurrency = value.toString();
+        var exchangeData =
+            await coinData.getCryptoExchange(selectedCurrency, 'BTC');
+
+        updateUI(exchangeData, selectedCurrency);
       },
     );
   }
@@ -44,10 +58,11 @@ class _PriceScreenState extends State<PriceScreen> {
 
     return CupertinoPicker(
       itemExtent: 32.0,
-      onSelectedItemChanged: (selectedIndex) {
-        setState(() {
-          selectedCurrency = currenciesList[selectedIndex];
-        });
+      onSelectedItemChanged: (selectedIndex) async {
+        selectedCurrency = currenciesList[selectedIndex].toString();
+        var exchangeData =
+            await coinData.getCryptoExchange(selectedCurrency, 'BTC');
+        updateUI(exchangeData, selectedCurrency);
       },
       children: pickerItems,
     );
@@ -71,12 +86,13 @@ class _PriceScreenState extends State<PriceScreen> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10.0),
               ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = ? USD',
+                  '1 BTC = ${exchangeRateBTC.toStringAsFixed(2)} $selectedCurrency',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20.0,
                     color: Colors.white,
                   ),

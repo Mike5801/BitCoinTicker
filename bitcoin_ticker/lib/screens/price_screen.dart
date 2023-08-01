@@ -22,7 +22,19 @@ class _PriceScreenState extends State<PriceScreen> {
   void initState() {
     super.initState();
     for (String crypto in cryptoList) {
-      exchangeRates.putIfAbsent(crypto, () => "");
+      exchangeRates.putIfAbsent(crypto, () => '');
+    }
+    getInitialExchangeCurrency();
+  }
+
+  void getInitialExchangeCurrency() async {
+    for (String crypto in cryptoList) {
+      var exchangeData = await coinData.getCryptoExchange(selectedCurrency, crypto);
+      String formattedExchangeRate =
+          exchangeData['rate'].toStringAsFixed(2);
+      setState(() {
+        exchangeRates[crypto] = formattedExchangeRate;
+      });
     }
   }
 
@@ -37,11 +49,12 @@ class _PriceScreenState extends State<PriceScreen> {
 
       return;
     }
-    
+
     setState(() {
       selectedCurrency = currency;
       for (String crypto in cryptoList) {
-        String formattedExchangeRate = exchangeData[crypto]['rate'].toStringAsFixed(2);
+        String formattedExchangeRate =
+            exchangeData[crypto]['rate'].toStringAsFixed(2);
         exchangeRates[crypto] = formattedExchangeRate;
       }
     });

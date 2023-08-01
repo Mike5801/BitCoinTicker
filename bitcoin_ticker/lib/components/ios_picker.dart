@@ -13,9 +13,13 @@ CupertinoPicker iOSPicker(
     itemExtent: 32.0,
     onSelectedItemChanged: (selectedIndex) async {
       selectedCurrency = currenciesList[selectedIndex].toString();
-      var exchangeData =
-          await coinData.getCryptoExchange(selectedCurrency, 'BTC');
-      updateUI(exchangeData, selectedCurrency);
+      Map<String, dynamic> exchangeDataMap = {};
+      for(String crypto in cryptoList) {
+        var exchangeData = await coinData.getCryptoExchange(selectedCurrency, crypto);
+        exchangeDataMap.putIfAbsent(crypto, () => exchangeData);
+      }
+
+      updateUI(exchangeDataMap, selectedCurrency);
     },
     children: pickerItems,
   );
